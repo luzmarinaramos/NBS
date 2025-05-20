@@ -108,10 +108,5 @@ fisher_information <- function(mu,sigma,eta){
   mid_row <- cbind(ceros_q_p,I_phi_phi,I_phi_eta)
   bottom_row <- cbind(ceros_1_p,I_eta_phi,I_eta_eta)
   Information <- rbind(top_row,mid_row,bottom_row)
-  out <- list(Information=Information,
-              I_mu_mu = I_mu_mu,
-              I_phi_phi=I_phi_phi,
-              I_phi_eta=I_phi_eta,
-              I_eta_eta=I_eta_eta)
-  return(out)
+  return(Information)
 }
