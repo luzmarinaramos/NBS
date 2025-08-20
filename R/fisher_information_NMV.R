@@ -6,10 +6,7 @@
 #' @param mu A numeric vector of length p (mean vector).
 #' @param sigma A symmetric, positive-definite covariance matrix of dimension p x p.
 #'
-#' @return A list with:
-#' \item{I_mu_mu}{Block corresponding to the mean parameters.}
-#' \item{I_phi_phi}{Block corresponding to the covariance parameters (vech(sigma)).}
-#' \item{Information}{The full Fisher information matrix.}
+#' @return A numeric matrix of dimension \code{p + p*(p+1)/2} by \code{p + p*(p+1)/2 + 1}, with attribute \code{"valid"} indicating if the matrix is symmetric and positive definite.
 #'
 #' @importFrom matrixcalc duplication.matrix
 #' @export
@@ -35,7 +32,5 @@ fisher_information_NMV <- function(mu, sigma) {
   bottom_row <- cbind(zero_21, I_phi_phi)
   Information <- rbind(top_row, bottom_row)
 
-  return(list(I_mu_mu = I_mu_mu,
-              I_phi_phi = I_phi_phi,
-              Information = Information))
+  return(Information)
 }

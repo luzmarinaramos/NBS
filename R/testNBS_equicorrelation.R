@@ -95,9 +95,9 @@ testNBS_equicorrelation <- function(y, nivel_significancia = 0.05) {
   p_G  <- 1 - pchisq(G, df)
 
   # 8. Output
-  return(list(
-    order = c("Likelihood Ratio", "Wald", "Score", "Gradient"),
-    statistics = c(LR, W, S, G),
+  return(data.frame(
+    Test = c("Likelihood Ratio", "Wald", "Score", "Gradient"),
+    Statistic = c(LR, W, S, G),
     p_value = c(p_LR, p_W, p_S, p_G)
   ))
 }

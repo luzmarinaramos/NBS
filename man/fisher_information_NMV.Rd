@@ -12,10 +12,7 @@ fisher_information_NMV(mu, sigma)
 \item{sigma}{A symmetric, positive-definite covariance matrix of dimension p x p.}
 }
 \value{
-A list with:
-\item{I_mu_mu}{Block corresponding to the mean parameters.}
-\item{I_phi_phi}{Block corresponding to the covariance parameters (vech(sigma)).}
-\item{Information}{The full Fisher information matrix.}
+A numeric matrix of dimension \code{p + p*(p+1)/2} by \code{p + p*(p+1)/2 + 1}, with attribute \code{"valid"} indicating if the matrix is symmetric and positive definite.
 }
 \description{
 Computes the Fisher information matrix of a multivariate normal distribution
