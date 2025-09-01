@@ -68,7 +68,7 @@ prob_agreement <- function(y, c) {
     pNBS0((-c - mu_D) / sigma_D, eta_est)
 
   # Información de Fisher
-  FI_est <- n * fisher_information(mu_est, sigma_est, eta_est)
+  FI_est <- fisher_information(mu_est, sigma_est, eta_est)
 
   # Derivadas parciales para el Jacobiano
   psi_mu <- ( dNBS0((c - mu_D) / sigma_D, eta_est) -

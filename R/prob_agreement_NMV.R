@@ -67,7 +67,7 @@ prob_agreement_NMV <- function(y, c) {
     pnorm((-c - mu_D) / sigma_D)
 
   # Información de Fisher
-  FI_est <- n * fisher_information_NMV(mu_est, sigma_est)
+  FI_est <- fisher_information_NMV(mu_est, sigma_est)
 
   # Derivadas parciales para el Jacobiano
   psi_mu <- ( dnorm((c - mu_D) / sigma_D) -
