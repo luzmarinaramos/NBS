@@ -72,7 +72,7 @@ prob_agreement <- function(y, c) {
 
   # Derivadas parciales para el Jacobiano
   psi_mu <- ( dNBS0((c - mu_D) / sigma_D, eta_est) -
-                dNBS0((-c - mu_D) / sigma_D, eta_est) ) * c(1, -1)
+                dNBS0((-c - mu_D) / sigma_D, eta_est) )*(-1/sigma_D) * c(1, -1)
 
   # Revisa esta parte: parece que intentas derivar respecto a sigma,
   # pero la fórmula original no estaba clara. Te la dejo estructurada:

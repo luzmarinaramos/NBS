@@ -71,7 +71,7 @@ prob_agreement_NMV <- function(y, c) {
 
   # Derivadas parciales para el Jacobiano
   psi_mu <- ( dnorm((c - mu_D) / sigma_D) -
-                dnorm((-c - mu_D) / sigma_D) ) * c(1, -1)
+                dnorm((-c - mu_D) / sigma_D) )*(-1/sigma_D) * c(1, -1)
 
   # Revisa esta parte: parece que intentas derivar respecto a sigma,
   # pero la fórmula original no estaba clara. Te la dejo estructurada:

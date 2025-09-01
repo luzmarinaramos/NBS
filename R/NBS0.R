@@ -66,13 +66,13 @@ dpNBS0 <- function(y, eta) {
     term2 <- v^(1/2) - v^(-1/2)
     phi_val <- dnorm(sqrt(eta) * (sqrt(v) - 1/sqrt(v)))
     Phi_val <- pnorm(y / sqrt(v))
-    term1 * term2 * phi_val * Phi_val
+    term1 * term2^2 * phi_val * Phi_val
   }
   result1 <- (1 / (2 * eta)) * pNBS0(y, eta)
-  result2 <- (1 / 4) * integrate(
+  result2 <- (sqrt(eta) / 4) * integrate(
     integrand, lower = 0, upper = Inf,
     rel.tol = 1e-8, abs.tol = 1e-10
   )$value
-  result <- result1 + result2
+  result <- result1 - result2
   return(result)
 }
