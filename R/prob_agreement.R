@@ -74,7 +74,7 @@ prob_agreement <- function(y, c) {
   psi_mu <- ( dNBS0((c - mu_D) / sigma_D, eta_est) -
                 dNBS0((-c - mu_D) / sigma_D, eta_est) ) * c(1, -1)
 
-  # ⚠️ Revisa esta parte: parece que intentas derivar respecto a sigma,
+  # Revisa esta parte: parece que intentas derivar respecto a sigma,
   # pero la fórmula original no estaba clara. Te la dejo estructurada:
   psi_sigma <- ( -( (c - mu_D) / sigma_D^2 ) * dNBS0((c - mu_D) / sigma_D, eta_est) +
                    ( (-c - mu_D) / sigma_D^2 ) * dNBS0((-c - mu_D) / sigma_D, eta_est) ) *
@@ -99,7 +99,7 @@ prob_agreement <- function(y, c) {
     estimate = psi_est,
     error_estandar = sd,
     limite_inferior = li,
-    limite_superior = ls  # ERROR: antes tenías ld
+    limite_superior = ls
   )
 
   return(result)
