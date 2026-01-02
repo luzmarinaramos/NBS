@@ -25,4 +25,11 @@ commutation_matrix <- function(p) {
   }
   return(K_p)
 }
+duplication_matrix_safe <- function(n) {
+  if (n == 1) {
+    return(matrix(1, nrow = 1, ncol = 1))
+  } else {
+    return(matrixcalc::duplication.matrix(n))
+  }
+}
 

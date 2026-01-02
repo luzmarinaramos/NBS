@@ -37,7 +37,7 @@ scoreNBS <- function(y, mu, sigma, eta) {
   q <- p * (p + 1) / 2
   a <- (p - 1) / 2
   sigma_inv <- solve(sigma)
-  D_p <- duplication.matrix(p)
+  D_p <- duplication_matrix_safe(p)
 
   # Pre-calculate constant values of the Bessel function for eta
   bessel_eta <- besselK(eta, 0.5)

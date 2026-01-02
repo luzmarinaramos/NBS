@@ -47,7 +47,7 @@
 #' @seealso \code{\link{emNBS}}, \code{\link{fisher_information}}, \code{\link{pNBS0}}, \code{\link{dNBS0}}
 #'
 #' @export
-prob_agreement_NMV <- function(y, c) {
+prob_agreement_NMV <- function(y, c,alpha=0.05) {
   n <- nrow(y)
 
   # Estimación de parámetros por EM
@@ -85,10 +85,21 @@ prob_agreement_NMV <- function(y, c) {
   # Varianza asintótica
   V <- t(jacobiano) %*% solve(FI_est) %*% jacobiano   # ERROR: antes pusiste jacobiano^T
   sd <- sqrt(V / n)
-
+  qq<-pnorm((psi_est-1)/sd)
   # Intervalo de confianza
-  li <- psi_est - qnorm(0.975) * sd
-  ls <- psi_est + qnorm(0.975) * sd
+  li <- psi_est - qnorm(1-alpha/2) * sd
+  ls <- psi_est + qnorm(1-alpha/2) * sd
+
+  if(ls > 1){
+    if(alpha>qq){
+    li <- psi_est - qnorm(1-alpha+qq) * sd
+    ls <- 1}
+    else{
+      li <- psi_est - qnorm(1-alpha/2) * sd
+      ls <- 1
+      warning("The confidence interval has lower confidence than requested.
+        Consider using a higher 1-α level")}
+  }
 
   result <- list(
     estimate = psi_est,

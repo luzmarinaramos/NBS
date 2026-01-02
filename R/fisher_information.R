@@ -28,7 +28,7 @@ fisher_information <- function(mu, sigma, eta) {
   a <- (p - 1) / 2
   sigma_inv <- solve(sigma)
   vec_sigma_inv <- as.vector(sigma_inv)
-  D_p <- duplication.matrix(p)
+  D_p <- duplication_matrix_safe(p)
   I_p2 <- diag(p^2)
   K_p <- commutation_matrix(p)
   N_p <- 0.5 * (I_p2 + K_p)
