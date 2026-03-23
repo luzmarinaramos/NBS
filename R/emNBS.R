@@ -131,7 +131,7 @@ emNBS <- function(y) {
         (eta_est - eta)^2
     )
     # Check convergence
-    if (abs(loglik_new - loglik_est) < tol_loglik && param_change < tol_param) {
+    if (abs(loglik_new - loglik_est) < tol_loglik) {
       converged <- TRUE
     }
 
