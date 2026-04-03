@@ -146,7 +146,7 @@ emNBS_equicorrelation <- function(y) {
     loglik_new <- sum(apply(y, 1, function(yi) dNBS(yi, mu_est, sigma_est, eta_est, log_density = TRUE)))
 
     param_change <- sqrt(sum((mu_est - mu)^2) + (eta_est - eta)^2 + (sigma2_est - mean(diag(sigma)))^2)
-    if (abs(loglik_new - loglik_est) < tol_loglik && param_change < tol_param) {
+    if (abs(loglik_new - loglik_est) < tol_loglik) {
       converged <- TRUE
     }
 

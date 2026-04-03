@@ -65,5 +65,6 @@ emNMV_equicorrelation <- function(y) {
 
   sigma_est <- sigma2_est * R_est
 
-  return(list(mu_est = mu_est, sigma_est = sigma_est))
+  return(list(mu_est = mu_est, sigma_est = sigma_est,rho_est = rho_est,
+              sigma2_est = sigma2_est))
 }
