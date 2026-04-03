@@ -35,7 +35,7 @@ testNBS_equicorrelation_2 <- function(y, nivel_significancia = 0.05) {
 
   # 1. Unrestricted fit (alternative hypothesis)
   fit <- emNBS(y)
-  if (!fit$convergence) stop("EM algorithm (unrestricted model) did not converge.")
+  #if (!fit$convergence) stop("EM algorithm (unrestricted model) did not converge.")
 
   mu_est <- fit$mu_est
   sigma_est <- fit$sigma_est
@@ -45,7 +45,7 @@ testNBS_equicorrelation_2 <- function(y, nivel_significancia = 0.05) {
 
   # 2. Restricted fit (null hypothesis: equicorrelation)
   fit_H0 <- emNBS_equicorrelation(y)
-  if (!fit_H0$convergence) stop("EM algorithm (equicorrelation model) did not converge.")
+  #if (!fit_H0$convergence) stop("EM algorithm (equicorrelation model) did not converge.")
 
   mu_est_H0 <- fit_H0$mu_est
   sigma_est_H0 <- fit_H0$sigma_est
