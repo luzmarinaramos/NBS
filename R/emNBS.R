@@ -33,25 +33,28 @@
 #' fit <- emNBS(y)
 #' print(fit$mu_est)
 #' }
-emNBS <- function(y) {
-  # Input validation
+emNBS <- function(y, eta_min = 1e-4, eta_max = 20, alpha_eta = 0.25, ridge = 1e-8) {
   if (!is.matrix(y)) stop("'y' must be a numeric matrix.")
-  if (!isSymmetric(cov(y))) stop("Covariance matrix of 'y' must be symmetric.")
-  if (!is.positive.definite(cov(y))) stop("Covariance matrix of 'y' must be positive definite.")
+  Sy <- cov(y)
+  if (!isSymmetric(Sy)) stop("Covariance matrix of 'y' must be symmetric.")
+  if (!matrixcalc::is.positive.definite(Sy)) stop("Covariance matrix of 'y' must be positive definite.")
+
+  clamp_eta <- function(x) pmax(eta_min, pmin(x, eta_max))
 
   n <- nrow(y)
   p <- ncol(y)
   a <- (p - 1) / 2
 
-  # Initialization
   mu_est <- colMeans(y)
   eta_est <- 1
-  sigma_est <- cov(y) / (1 + 1 / (2 * eta_est))
+  sigma_est <- Sy / (1 + 1 / (2 * eta_est))
+  sigma_est <- (sigma_est + t(sigma_est)) / 2 + ridge * diag(p)
 
-  # Initial log-likelihood
-  loglik_est <- sum(apply(y, 1, function(yi) dNBS(yi, mu_est, sigma_est, eta_est, log_density = TRUE)))
+  loglik_est <- sum(apply(
+    y, 1,
+    function(yi) dNBS(yi, mu_est, sigma_est, clamp_eta(eta_est), log_density = TRUE)
+  ))
 
-  # EM control parameters
   iter <- 0
   maxiter <- 2000
   tol_loglik <- 1e-4
@@ -61,86 +64,95 @@ emNBS <- function(y) {
   while (iter < maxiter && !converged) {
     mu <- mu_est
     sigma <- sigma_est
-    eta <- eta_est
+    eta <- clamp_eta(eta_est)
 
-    # Cholesky decomposition for sigma
-    chol_sigma <- tryCatch(chol(sigma), error = function(e) stop("Sigma is not positive definite during iteration."))
+    chol_sigma <- tryCatch(
+      chol(sigma),
+      error = function(e) stop("Sigma is not positive definite during iteration.")
+    )
     sigma_inv <- chol2inv(chol_sigma)
     log_det_sigma <- 2 * sum(log(diag(chol_sigma)))
 
-    # Compute delta for all observations: vectorized quadratic forms
     diffs <- sweep(y, 2, mu, FUN = "-")
     delta <- rowSums((diffs %*% sigma_inv) * diffs)
 
     w <- sqrt(eta * (eta + delta))
+    w <- pmax(w, 1e-12)
 
-    # Log-density components for p_y calculation (vectorized)
-    logd1 <- log(besselK(w, -a)) -
+    K_w_ma   <- besselK(w, -a, expon.scaled = TRUE)
+    K_w_ap   <- besselK(w, a - p, expon.scaled = TRUE)
+    K_eta_p  <- besselK(eta, 0.5, expon.scaled = TRUE)
+    K_eta_m  <- besselK(eta, -0.5, expon.scaled = TRUE)
+
+    logd1 <- log(K_w_ma) -
       (p / 2) * log(2 * pi) - 0.5 * log_det_sigma -
-      log(besselK(eta, 0.5)) +
+      log(K_eta_p) +
       a * log(eta / w)
 
-    logd2 <- log(besselK(w, a - p)) -
+    logd2 <- log(K_w_ap) -
       (p / 2) * log(2 * pi) - 0.5 * log_det_sigma -
-      log(besselK(eta, -0.5)) -
+      log(K_eta_m) -
       (a - p) * log(eta / w)
 
-    py <- exp(logd1) / (exp(logd1) + exp(logd2))
+    log_ratio <- pmax(pmin(logd2 - logd1, 700), -700)
+    py <- 1 / (1 + exp(log_ratio))
 
-    # Calculate v1 and v2 vectorized
-    bessel_w_1_a <- besselK(w, 1 - a)
-    bessel_w_m1_a <- besselK(w, -1 - a)
-    bessel_w_a_p <- besselK(w, a - p)
-    bessel_w_1_a_p <- besselK(w, 1 + a - p)
-    bessel_w_m1_a_p <- besselK(w, -1 + a - p)
+    K_w_1ma   <- besselK(w, 1 - a, expon.scaled = TRUE)
+    K_w_m1ma  <- besselK(w, -1 - a, expon.scaled = TRUE)
+    K_w_1ap   <- besselK(w, 1 + a - p, expon.scaled = TRUE)
+    K_w_m1ap  <- besselK(w, -1 + a - p, expon.scaled = TRUE)
 
-    term1_v1 <- py * (bessel_w_1_a / besselK(w, -a))
-    term2_v1 <- (1 - py) * (bessel_w_1_a_p / bessel_w_a_p)
+    term1_v1 <- py * (K_w_1ma / K_w_ma)
+    term2_v1 <- (1 - py) * (K_w_1ap / K_w_ap)
     v1 <- sqrt(1 + delta / eta) * (term1_v1 + term2_v1)
 
-    term1_v2 <- py * (bessel_w_m1_a / besselK(w, -a))
-    term2_v2 <- (1 - py) * (bessel_w_m1_a_p / bessel_w_a_p)
-    v2 <- 1 / sqrt(1 + delta / eta) * (term1_v2 + term2_v2)
+    term1_v2 <- py * (K_w_m1ma / K_w_ma)
+    term2_v2 <- (1 - py) * (K_w_m1ap / K_w_ap)
+    v2 <- (term1_v2 + term2_v2) / sqrt(1 + delta / eta)
 
-    # Update mu
+    if (any(!is.finite(v1)) || any(!is.finite(v2))) {
+      stop("Non-finite values in E-step.")
+    }
+
     mu_est <- colSums(v2 * y) / sum(v2)
 
-    # Update sigma
     diffs_new <- sweep(y, 2, mu_est, FUN = "-")
     sigma_est <- matrix(0, p, p)
     for (i in 1:n) {
       sigma_est <- sigma_est + v2[i] * tcrossprod(diffs_new[i, ])
     }
     sigma_est <- sigma_est / n
-    sigma_est <- (sigma_est + t(sigma_est)) / 2
+    sigma_est <- (sigma_est + t(sigma_est)) / 2 + ridge * diag(p)
 
-    # Update eta
     denom <- mean(v1) + mean(v2) - 2
     if (!is.finite(denom) || denom <= 0) {
-      stop("Invalid value encountered in eta estimation (division by zero or negative).")
+      stop("Invalid value encountered in eta estimation.")
     }
-    eta_est <- 1 / denom
 
-    # Compute new log-likelihood
-    loglik_new <- sum(apply(y, 1, function(yi) dNBS(yi, mu_est, sigma_est, eta_est, log_density = TRUE)))
+    eta_raw <- 1 / denom
+    eta_raw <- clamp_eta(eta_raw)
 
-    # Parameter change norm (Euclidean for mu and eta; Frobenius for sigma)
+    # actualización amortiguada
+    eta_est <- clamp_eta((1 - alpha_eta) * eta + alpha_eta * eta_raw)
+
+    loglik_new <- sum(apply(
+      y, 1,
+      function(yi) dNBS(yi, mu_est, sigma_est, eta_est, log_density = TRUE)
+    ))
+
     param_change <- sqrt(
       sum((mu_est - mu)^2) +
         sum((sigma_est - sigma)^2) +
         (eta_est - eta)^2
     )
-    # Check convergence
-    if (abs(loglik_new - loglik_est) < tol_loglik) {
+
+    if (abs(loglik_new - loglik_est) < tol_loglik && param_change < tol_param) {
       converged <- TRUE
     }
 
     loglik_est <- loglik_new
     iter <- iter + 1
   }
-  eta_min <- 1e-4
-  eta_max <- 20
-  eta_est <- max(min(eta_est, eta_max), eta_min)
 
   list(
     mu_est = mu_est,

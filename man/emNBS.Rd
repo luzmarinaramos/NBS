@@ -4,7 +4,7 @@
 \alias{emNBS}
 \title{EM algorithm to estimate parameters of the NBS distribution}
 \usage{
-emNBS(y)
+emNBS(y, eta_min = 1e-04, eta_max = 20, alpha_eta = 0.25, ridge = 1e-08)
 }
 \arguments{
 \item{y}{Numeric matrix of dimension \eqn{n \times p}, the observed sample.}
