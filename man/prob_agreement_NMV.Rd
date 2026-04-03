@@ -4,7 +4,7 @@
 \alias{prob_agreement_NMV}
 \title{Estimation of the Agreement Probability in the Bivariate Normal Distribution}
 \usage{
-prob_agreement_NMV(y, c)
+prob_agreement_NMV(y, c, alpha = 0.05)
 }
 \arguments{
 \item{y}{A matrix or data.frame of dimension \eqn{n \times 2}, containing a sample from the bivariate NBS distribution.

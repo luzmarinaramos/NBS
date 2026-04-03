@@ -4,7 +4,7 @@
 \alias{prob_agreement}
 \title{Estimation of the Agreement Probability in the Bivariate Normal-Birnbaum-Saunders Distribution}
 \usage{
-prob_agreement(y, c)
+prob_agreement(y, c, alpha = 0.05)
 }
 \arguments{
 \item{y}{A matrix or data.frame of dimension \eqn{n \times 2}, containing a sample from the bivariate NBS distribution.
