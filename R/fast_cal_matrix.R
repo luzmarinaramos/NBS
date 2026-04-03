@@ -1,11 +1,13 @@
-#' Generate the commutation matrix of size p^2 x p^2
+#' Generate the commutation matrix of size \eqn{p^2 \times p^2}
 #'
-#' Constructs the commutation matrix \(K_p\) which is a \(p^2 \times p^2\) permutation matrix
-#' satisfying \(\text{vec}(A^T) = K_p \text{vec}(A)\) for any \(p \times p\) matrix \(A\).
+#' Constructs the commutation matrix \eqn{K_p}, which is a
+#' \eqn{p^2 \times p^2} permutation matrix satisfying
+#' \eqn{\mathrm{vec}(A^\top) = K_p \mathrm{vec}(A)}
+#' for any \eqn{p \times p} matrix \eqn{A}.
 #'
 #' @param p Positive integer specifying the dimension of the square matrix.
 #'
-#' @return A \(p^2 \times p^2\) commutation matrix.
+#' @return A \eqn{p^2 \times p^2} commutation matrix.
 #'
 #' @examples
 #' K2 <- commutation_matrix(2)

@@ -153,6 +153,9 @@ emNBS_equicorrelation <- function(y) {
     loglik_est <- loglik_new
     iter <- iter + 1
   }
+  eta_min <- 1e-4
+  eta_max <- 100
+  eta_est <- max(min(eta_est, eta_max), eta_min)
 
   list(
     mu_est = mu_est,

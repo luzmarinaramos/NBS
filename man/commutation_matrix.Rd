@@ -2,7 +2,7 @@
 % Please edit documentation in R/fast_cal_matrix.R
 \name{commutation_matrix}
 \alias{commutation_matrix}
-\title{Generate the commutation matrix of size p^2 x p^2}
+\title{Generate the commutation matrix of size \eqn{p^2 \times p^2}}
 \usage{
 commutation_matrix(p)
 }
@@ -10,11 +10,13 @@ commutation_matrix(p)
 \item{p}{Positive integer specifying the dimension of the square matrix.}
 }
 \value{
-A \(p^2 \times p^2\) commutation matrix.
+A \eqn{p^2 \times p^2} commutation matrix.
 }
 \description{
-Constructs the commutation matrix \(K_p\) which is a \(p^2 \times p^2\) permutation matrix
-satisfying \(\text{vec}(A^T) = K_p \text{vec}(A)\) for any \(p \times p\) matrix \(A\).
+Constructs the commutation matrix \eqn{K_p}, which is a
+\eqn{p^2 \times p^2} permutation matrix satisfying
+\eqn{\mathrm{vec}(A^\top) = K_p \mathrm{vec}(A)}
+for any \eqn{p \times p} matrix \eqn{A}.
 }
 \examples{
 K2 <- commutation_matrix(2)

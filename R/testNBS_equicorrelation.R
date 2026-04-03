@@ -17,7 +17,6 @@
 #'
 #' @importFrom matrixcalc is.positive.definite
 #' @importFrom stats pchisq
-#' @importFrom base chol chol2inv crossprod
 #'
 #' @examples
 #' \dontrun{
