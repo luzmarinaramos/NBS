@@ -131,9 +131,9 @@ emNBS <- function(y, eta_min = 1e-4, eta_max = 20, alpha_eta = 0.25, ridge = 1e-
 
     eta_raw <- 1 / denom
     eta_raw <- clamp_eta(eta_raw)
-
+    eta_est <- eta_raw
     # actualización amortiguada
-    eta_est <- clamp_eta((1 - alpha_eta) * eta + alpha_eta * eta_raw)
+    #eta_est <- clamp_eta((1 - alpha_eta) * eta + alpha_eta * eta_raw)
 
     loglik_new <- sum(apply(
       y, 1,

@@ -234,8 +234,8 @@ emNBS_equicorrelation <- function(y,
     eta_raw <- clamp_eta(eta_raw)
 
     # Damped update
-    eta_est <- (1 - alpha_eta) * eta + alpha_eta * eta_raw
-    eta_est <- clamp_eta(eta_est)
+    #eta_est <- (1 - alpha_eta) * eta + alpha_eta * eta_raw
+    eta_est <- eta_raw
 
     # -----------------------------
     # Log-likelihood
