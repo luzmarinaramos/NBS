@@ -33,13 +33,13 @@
 #' fit <- emNBS(y)
 #' print(fit$mu_est)
 #' }
-emNBS <- function(y, eta_min = 1e-4, eta_max = 20, alpha_eta = 0.25, ridge = 1e-8) {
+emNBS <- function(y) {
   if (!is.matrix(y)) stop("'y' must be a numeric matrix.")
   Sy <- cov(y)
   if (!isSymmetric(Sy)) stop("Covariance matrix of 'y' must be symmetric.")
   if (!matrixcalc::is.positive.definite(Sy)) stop("Covariance matrix of 'y' must be positive definite.")
 
-  clamp_eta <- function(x) pmax(eta_min, pmin(x, eta_max))
+  #clamp_eta <- function(x) pmax(eta_min, pmin(x, eta_max))
 
   n <- nrow(y)
   p <- ncol(y)
@@ -48,11 +48,11 @@ emNBS <- function(y, eta_min = 1e-4, eta_max = 20, alpha_eta = 0.25, ridge = 1e-
   mu_est <- colMeans(y)
   eta_est <- 1
   sigma_est <- Sy / (1 + 1 / (2 * eta_est))
-  sigma_est <- (sigma_est + t(sigma_est)) / 2 + ridge * diag(p)
+  #sigma_est <- (sigma_est + t(sigma_est)) / 2 + ridge * diag(p)
 
   loglik_est <- sum(apply(
     y, 1,
-    function(yi) dNBS(yi, mu_est, sigma_est, clamp_eta(eta_est), log_density = TRUE)
+    function(yi) dNBS(yi, mu_est, sigma_est, eta_est, log_density = TRUE)
   ))
 
   iter <- 0
@@ -64,7 +64,7 @@ emNBS <- function(y, eta_min = 1e-4, eta_max = 20, alpha_eta = 0.25, ridge = 1e-
   while (iter < maxiter && !converged) {
     mu <- mu_est
     sigma <- sigma_est
-    eta <- clamp_eta(eta_est)
+    eta <- eta_est
 
     chol_sigma <- tryCatch(
       chol(sigma),
@@ -77,7 +77,7 @@ emNBS <- function(y, eta_min = 1e-4, eta_max = 20, alpha_eta = 0.25, ridge = 1e-
     delta <- rowSums((diffs %*% sigma_inv) * diffs)
 
     w <- sqrt(eta * (eta + delta))
-    w <- pmax(w, 1e-12)
+    #w <- pmax(w, 1e-12)
 
     K_w_ma   <- besselK(w, -a, expon.scaled = TRUE)
     K_w_ap   <- besselK(w, a - p, expon.scaled = TRUE)
@@ -94,7 +94,7 @@ emNBS <- function(y, eta_min = 1e-4, eta_max = 20, alpha_eta = 0.25, ridge = 1e-
       log(K_eta_m) -
       (a - p) * log(eta / w)
 
-    log_ratio <- pmax(pmin(logd2 - logd1, 700), -700)
+    log_ratio <- logd2 - logd1
     py <- 1 / (1 + exp(log_ratio))
 
     K_w_1ma   <- besselK(w, 1 - a, expon.scaled = TRUE)
@@ -130,7 +130,7 @@ emNBS <- function(y, eta_min = 1e-4, eta_max = 20, alpha_eta = 0.25, ridge = 1e-
     }
 
     eta_raw <- 1 / denom
-    eta_raw <- clamp_eta(eta_raw)
+    #eta_raw <- clamp_eta(eta_raw)
     eta_est <- eta_raw
     # actualización amortiguada
     #eta_est <- clamp_eta((1 - alpha_eta) * eta + alpha_eta * eta_raw)
