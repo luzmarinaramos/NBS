@@ -122,7 +122,7 @@ emNBS <- function(y) {
       sigma_est <- sigma_est + v2[i] * tcrossprod(diffs_new[i, ])
     }
     sigma_est <- sigma_est / n
-    sigma_est <- (sigma_est + t(sigma_est)) / 2 + ridge * diag(p)
+    #sigma_est <- (sigma_est + t(sigma_est)) / 2 + ridge * diag(p)
 
     denom <- mean(v1) + mean(v2) - 2
     if (!is.finite(denom) || denom <= 0) {

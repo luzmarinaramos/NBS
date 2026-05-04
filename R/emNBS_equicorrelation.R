@@ -30,10 +30,10 @@
 #' @importFrom matrixcalc is.positive.definite
 #' @export
 emNBS_equicorrelation <- function(y,
-                                  eta_min = 1e-4,
-                                  eta_max = 20,
-                                  alpha_eta = 0.25,
-                                  ridge = 1e-8,
+                                  #eta_min = 1e-4,
+                                  #eta_max = 20,
+                                  #alpha_eta = 0.25,
+                                  #ridge = 1e-8,
                                   maxiter = 2000,
                                   tol_loglik = 1e-4,
                                   tol_param = 1e-4) {
@@ -50,27 +50,27 @@ emNBS_equicorrelation <- function(y,
     stop("The covariance matrix of 'y' is not positive definite.")
   }
 
-  if (!is.numeric(eta_min) || !is.numeric(eta_max) || eta_min <= 0 || eta_min >= eta_max) {
-    stop("Require 0 < eta_min < eta_max.")
-  }
-  if (!is.numeric(alpha_eta) || alpha_eta <= 0 || alpha_eta > 1) {
-    stop("'alpha_eta' must be in (0,1].")
-  }
-  if (!is.numeric(ridge) || ridge < 0) {
-    stop("'ridge' must be nonnegative.")
-  }
+ # if (!is.numeric(eta_min) || !is.numeric(eta_max) || eta_min <= 0 || eta_min >= eta_max) {
+  #  stop("Require 0 < eta_min < eta_max.")
+ # }
+ # if (!is.numeric(alpha_eta) || alpha_eta <= 0 || alpha_eta > 1) {
+  #  stop("'alpha_eta' must be in (0,1].")
+ # }
+ # if (!is.numeric(ridge) || ridge < 0) {
+  #  stop("'ridge' must be nonnegative.")
+  #}
 
   # -----------------------------
   # 2. Helpers
   # -----------------------------
-  clamp_eta <- function(x) pmax(eta_min, pmin(x, eta_max))
+ # clamp_eta <- function(x) pmax(eta_min, pmin(x, eta_max))
 
-  clamp_rho <- function(rho, p) {
+  #clamp_rho <- function(rho, p) {
     # rho in (-1/(p-1), 1)
-    lower <- -1 / (p - 1) + 1e-6
-    upper <- 0.99
-    pmax(lower, pmin(rho, upper))
-  }
+  #  lower <- -1 / (p - 1) + 1e-6
+  #  upper <- 0.99
+  #  pmax(lower, pmin(rho, upper))
+  #}
 
   safe_log_besselK <- function(x, nu) {
     val <- besselK(x, nu, expon.scaled = TRUE)
@@ -94,15 +94,15 @@ emNBS_equicorrelation <- function(y,
 
   sigma2_est <- mean(diag(Sy))
   rho_est <- mean(Sy[lower.tri(Sy)]) / sigma2_est
-  rho_est <- clamp_rho(rho_est, p)
+  #rho_est <- clamp_rho(rho_est, p)
 
   R_est <- (1 - rho_est) * I + rho_est * J
   sigma_est <- sigma2_est * R_est
-  sigma_est <- (sigma_est + t(sigma_est)) / 2 + ridge * I
+  #sigma_est <- (sigma_est + t(sigma_est)) / 2 + ridge * I
 
   loglik_est <- sum(apply(
     y, 1,
-    function(yi) dNBS(yi, mu_est, sigma_est, clamp_eta(eta_est), log_density = TRUE)
+    function(yi) dNBS(yi, mu_est, sigma_est, eta_est, log_density = TRUE)
   ))
 
   iter <- 0
@@ -114,7 +114,7 @@ emNBS_equicorrelation <- function(y,
   while (iter < maxiter && !converged) {
     mu <- mu_est
     sigma <- sigma_est
-    eta <- clamp_eta(eta_est)
+    eta <- eta_est
     rho <- rho_est
     sigma2 <- sigma2_est
 
@@ -131,7 +131,7 @@ emNBS_equicorrelation <- function(y,
 
     # Stable w
     w <- sqrt(eta * (eta + delta))
-    w <- pmax(w, 1e-12)
+    #w <- pmax(w, 1e-12)
 
     # -----------------------------
     # E-step
@@ -156,7 +156,7 @@ emNBS_equicorrelation <- function(y,
 
     # Stable py = 1 / (1 + exp(logd2 - logd1))
     log_ratio <- logd2 - logd1
-    log_ratio <- pmax(pmin(log_ratio, 700), -700)
+    #log_ratio <- pmax(pmin(log_ratio, 700), -700)
     py <- 1 / (1 + exp(log_ratio))
 
     # Bessel terms for v1 and v2
@@ -204,7 +204,7 @@ emNBS_equicorrelation <- function(y,
     cumsum2 <- sum(v2 * sum_vec^2)
 
     rho_est <- (cumsum2 - cumsum1) / ((p - 1) * cumsum1)
-    rho_est <- clamp_rho(rho_est, p)
+    #rho_est <- clamp_rho(rho_est, p)
 
     denom_rho <- (1 - rho_est) * (1 - rho_est + rho_est * p)
     if (!is.finite(denom_rho) || denom_rho <= 0) {
@@ -220,7 +220,7 @@ emNBS_equicorrelation <- function(y,
 
     R_est <- (1 - rho_est) * I + rho_est * J
     sigma_est <- sigma2_est * R_est
-    sigma_est <- (sigma_est + t(sigma_est)) / 2 + ridge * I
+    #sigma_est <- (sigma_est + t(sigma_est)) / 2 + ridge * I
 
     # -----------------------------
     # M-step: update eta
@@ -231,7 +231,7 @@ emNBS_equicorrelation <- function(y,
     }
 
     eta_raw <- 1 / denom_eta
-    eta_raw <- clamp_eta(eta_raw)
+   # eta_raw <- clamp_eta(eta_raw)
 
     # Damped update
     #eta_est <- (1 - alpha_eta) * eta + alpha_eta * eta_raw
